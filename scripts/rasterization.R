@@ -19,7 +19,12 @@ rasterize_reference <- function(vec, resolution = 10){
   
   # rasterize
   r <- rasterize(vec, r, field = reference)
-  return(r)
+  return(list(raster = r, reference_collumn_name = reference))
 }
 
-rasterized_vector <- rasterize_reference(vector, res(raster_list[[1]]))
+result <- rasterize_reference(vector, res(raster_list[[1]]))
+rasterized_vector <- result$raster
+reference_band <- result$reference_collumn_name
+
+rm(result)
+gc()
