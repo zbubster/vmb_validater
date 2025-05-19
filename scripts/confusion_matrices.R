@@ -44,8 +44,9 @@ confmat <- function(stack, truth){
     pred <- factor(df[[layer]]) # extract model prediction
     ref <- factor(df[[truth]]) # extract true values
     cm <- confusionMatrix(pred, ref) # confusion matix creation
-    result[[layer_name]] <- cm 
+    result[[layer]] <- cm 
   }
+  print(result)
   return(result)
 }
 
