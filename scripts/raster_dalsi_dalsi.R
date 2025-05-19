@@ -18,9 +18,6 @@ GT23 <- as.factor(c("T1.4", "T1.5", "T1.7", "T1.9", "T1.10"))
 GT25 <- as.factor(c("M5", "M7", "A4.1", "A4.2", "A4.3", "T1.6", "T1.8", "T4.1", "T4.2"))
 GT27 <- as.factor(character(0))
 
-str(vector$BIOTOP_CODES)
-str(GT27)
-
 vector$gt <- NA
 vector$gt[vector$BIOTOP_CODES %in% GT22] <- 22
 vector$gt[vector$BIOTOP_CODES %in% GT23] <- 23
@@ -28,30 +25,13 @@ vector$gt[vector$BIOTOP_CODES %in% GT25] <- 25
 vector$gt[vector$BIOTOP_CODES %in% GT27] <- 27
 table(vector$BIOTOP_CODES, vector$gt)
 
-r <- rast(ext(vector), res = 10, crs = crs(vector))
+source("scripts/rasterization.R")
+rasterized_vector
+reference_band
 
-r <- rasterize(vector, r, field = "gt")
-plot(r)
-r
-
-stack <- c(raster_list[[1]], r)
+stack <- do.call(c, c(raster_list, list(rasterized_vector)))
 plot(stack)
-names(stack) <- c("EUGW_prediction", "VMB_biotopes")
+stack
+stack[[1]][1] <- 27
 
-unique(values(stack$EUGW_prediction))
-
-df <- data.frame(values(stack))
-head(df)
-
-confusionMatrix(factor(df$EUGW_prediction), factor(df$VMB_biotopes))
-
-################### AAAAAAAAAAAAAAAAAAAAAAAA bozeee
-
-stack[[2]][1] <- 27
-
-############ prasárna ale co mám dělat
-
-df <- data.frame(values(stack))
-head(df)
-
-confusionMatrix(factor(df$EUGW_prediction), factor(df$VMB_biotopes))
+source("scripts/confusion_matrices.R")
