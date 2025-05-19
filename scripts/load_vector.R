@@ -36,9 +36,8 @@ while(FSBout() == TRUE){
       next
     }
 }
-print(what_to_filter)
-vector <- vector[!toupper(vector$FSB) %in% what_to_filter,]
-unique(vector$FSB)
 
-rm(path, new_cols, what_to_filter)
+vector <- vector[!toupper(vector$FSB) %in% what_to_filter,]
+
+rm(path, new_cols, what_to_filter, FSBout, co)
 gc()
