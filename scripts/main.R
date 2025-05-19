@@ -10,8 +10,9 @@ raster_list
 
 source("scripts/load_vector.R", echo = F)
 vector
-
 source("scripts/CRS.R", echo = F)
+source("scripts/analysis_raster.R", echo = F)
+
 
 source("scripts/vypocet_plochy.R", echo = F)
 #vector_updated <- area_of_raster_value(raster_list, vector)
