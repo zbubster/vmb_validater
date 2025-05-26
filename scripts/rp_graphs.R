@@ -73,7 +73,7 @@ plot_df_top <- plot_df %>%
   semi_join(top, by = c("mod", as.character(bio)))
 
 # Step 5: Plot and save to PDF
-pdf_name <- paste0("Relative_proportions_top_", N, "_thr_", thr, "%.pdf")
+pdf_name <- paste0("Relative_proportions_top_", N, "_thr_", thr, ".pdf")
 pdf(file = paste0("out/RP/", pdf_name), width = 10, height = 6)
 
 for (model in unique(plot_df_top$mod)) {
@@ -96,5 +96,5 @@ for (model in unique(plot_df_top$mod)) {
 
 dev.off()
 
-rm(pdf_name, plot_df, plot_df_top, top, totals, found, vv, v)
+rm(pdf_name, plot_df, plot_df_top, top, totals, found, vv, v, p, bio, id, model, N, thr)
 gc()
