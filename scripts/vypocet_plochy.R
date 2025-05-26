@@ -18,6 +18,7 @@ area_of_raster_value <- function(rastlist, vctr){
                             small = T, # pouze pix s centroidem uvnitr polygonu
                             na.rm = T)
       
+      ncell[is.na(ncell)] <- 0 # make 0 from NaN
       a <- ncell * cs  # vypocet plochy
       p <- (a / vctr$SHAPE_Area) * 100 # vypocet procenta
       p[p > 100] <- 100  # max 100 %
@@ -35,5 +36,6 @@ area_of_raster_value <- function(rastlist, vctr){
   return(vctr)
 }
 # ↓↓↓↓↓↓↓↓↓↓↓
+vector_updated <- area_of_raster_value(raster_list, vector)
 # vector <- area_of_raster_value(raster_list, vector)
 # vraci vektor, ktry ma nove sloupce, vzdy je to plocha, kterou v ramci nej pokryva ta dana klasifikacni jednotka rastru
