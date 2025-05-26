@@ -6,10 +6,6 @@ source("scripts/load_vector.R", echo = F)
 vector
 plot(vector)
 
-# vyfiltrovat moz a -1
-vyloucit <- c("moz.", "-")
-vector <- vector[!vector$FSB %in% vyloucit,]
-rm(vyloucit)
 
 source("scripts/load_raster.R", echo = F)
 raster_list
@@ -56,11 +52,3 @@ table(df$GT, df$BIOTOP_CODES, useNA = "always")
 
 
 
-library(caret)
-?confusionMatrix
-
-cm <- confusionMatrix(
-  factor(df$GT, levels = VMB_levels$value, labels = VMB_levels$BIOTOP_CODES),
-  factor(df$VMB, levels = VMB_levels$value, labels = VMB_levels$BIOTOP_CODES)
-)
-print(cm)

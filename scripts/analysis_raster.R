@@ -1,17 +1,11 @@
-# raster dalsi dals
+# raster analysis
+# this script computes confusion matrices for classification model outputs, which are usualy in raster format
 
-source("scripts/knihovnik.R", echo = F)
-source("scripts/load_vector.R", echo = F)
-vector
+# INPUT:
+# OUTPUT:
 
-source("scripts/load_raster.R", echo = F)
-raster_list
-
-source("scripts/CRS.R", echo = F)
-
-plot(vector[!is.na(vector$BIOTOP_CODES)])
-plot(raster_list[[1]], add = T)
-
+################################################################################
+#### need of crosswalk integration
 
 GT22 <- as.factor(c("T1.1", "T1.2", "T1.3"))
 GT23 <- as.factor(c("T1.4", "T1.5", "T1.7", "T1.9", "T1.10"))
@@ -24,14 +18,13 @@ vector$gt[vector$BIOTOP_CODES %in% GT23] <- 23
 vector$gt[vector$BIOTOP_CODES %in% GT25] <- 25
 vector$gt[vector$BIOTOP_CODES %in% GT27] <- 27
 table(vector$BIOTOP_CODES, vector$gt)
+################################################################################
 
 source("scripts/rasterization.R")
-rasterized_vector
-reference_band
 
 stack <- do.call(c, c(raster_list, list(rasterized_vector)))
-plot(stack)
-stack
-stack[[1]][1] <- 27
+## ↓↓↓ omlouvám se
+stack[[1]][1] <- 27 
+## ↑↑↑ tohle je zvěrstvo
 
 source("scripts/confusion_matrices.R")

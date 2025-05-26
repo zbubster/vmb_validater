@@ -29,7 +29,7 @@ knihovnik <- function(kniha) {
   }
 }
 
-co <- c("terra", "dplyr", "ggplot2", "eunis.habitats", "ca")
+co <- c("terra", "dplyr", "ggplot2", "caret")
 knihovnik(co)
 
 rm(co)
