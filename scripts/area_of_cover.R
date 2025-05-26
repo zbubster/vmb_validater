@@ -1,4 +1,4 @@
-# vypocet plochy v ramci jednotlivych polygonu, kterou pokryva klasifikacni rastr
+# cover and relative cover
 
 # IN: raster_list, vector
 # OUT: updated vector
@@ -35,9 +35,5 @@ area_of_raster_value <- function(rastlist, vctr){
   }
   return(vctr)
 }
-# ↓↓↓↓↓↓↓↓↓↓↓
-vector_updated <- area_of_raster_value(raster_list, vector)
-# vector <- area_of_raster_value(raster_list, vector)
-# vraci vektor, ktry ma nove sloupce, vzdy je to plocha, kterou v ramci nej pokryva ta dana klasifikacni jednotka rastru
 
-# zonal statistics NaN return debug, now all NaN are zeros
+vector_updated <- area_of_raster_value(raster_list, vector)
