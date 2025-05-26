@@ -21,12 +21,8 @@ table(vector$BIOTOP_CODES, vector$gt)
 ################################################################################
 
 source("scripts/rasterization.R")
-rasterized_vector
-reference_band
 
 stack <- do.call(c, c(raster_list, list(rasterized_vector)))
-plot(stack)
-stack
 ## ↓↓↓ omlouvám se
 stack[[1]][1] <- 27 
 ## ↑↑↑ tohle je zvěrstvo
