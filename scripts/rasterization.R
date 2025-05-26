@@ -6,7 +6,7 @@ rasterize_reference <- function(vec, resolution = 10){
   # which collumn should be taken as band value
   cat("Vector layer colnames:\n", names(vec))
   repeat{
-    reference <- readline(prompt = "Name of the reference column: ")
+    reference <- readline(prompt = "Name of the reference column, which contain 'ground truth' information: ")
     if (reference %in% names(vec)){
       break
     }else{
