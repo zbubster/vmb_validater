@@ -95,3 +95,6 @@ for (model in unique(plot_df_top$mod)) {
 }
 
 dev.off()
+
+rm(pdf_name, plot_df, plot_df_top, top, totals, found, vv, v)
+gc()
