@@ -3,25 +3,122 @@
 # INPUT: vector updated by vypocet_plochy.R (it should have cover area and percent of coverage of each polygon by each raster from raster list)
 # OUTPUT: graphs in /out folder
 
-#---#---#---#---#---#---#---#---#---#---#---#---# 
+#---#---#---#---#---#---#---#---#---#---#---#---#
 #                  User input                   #
 #---#---#---#---#---#---#---#---#---#---#---#---#
 
-id <- readline(prompt = "SEGMENT_ID") # should be defined collumn
-id <- sym(id)
-bio <- readline(prompt = "BIOTOP_CODES") # should be defined collumn
-bio <- sym(bio)
-N <- readline(prompt = "Number of top plotted ground truth cathegories: ") # should be between 1 and N of bio
-thr <- as.numeric(readline(prompt = "Minimum cover of polygon to be taken as FOUND: ")) # should be percent
+# colnames for next inputs
+cols <- names(vector) %>%
+  .[!grepl("(_area|_percent)$", .)]
 
-#############x
-thr <- 10
-N <- 10
-id <- "SEGMENT_ID"
-id <- sym(id)
-bio <- "BIOTOP_CODES"
-bio <- sym(bio)
-##############
+#---#---#---#---#---#---#---#---#---#---#---#---#
+# input for polygon ID
+# user should choose collumn with ID of polygons
+
+# call
+cat("Which collumn contain unique identifier of polygon (ID)?:\n") # SEGMENT_ID
+# print options
+for (i in seq_along(cols)) {
+  cat(sprintf("[%d] %s\n", i, cols[i]))
+}
+
+# wait for valid option selection
+repeat {
+  input <- readline(prompt = "Type column number or name: ")
+  if (input %in% cols) {
+    id_name <- input
+    break
+  }
+  num <- suppressWarnings(as.numeric(input))
+  if (!is.na(num) && num %in% seq_along(cols)) {
+    id_name <- cols[num]
+    break
+    }
+  cat("Invalid input. Please try again.\n")
+}
+id <- sym(id_name) # convert to symbol
+# call out
+cat("As ID you selected column:", id_name, "\n\n")
+cat("------------------------------------------\n\n")
+
+#---#---#---#---#---#---#---#---#---#---#---#---#
+# input for biotope/habitat cathegory
+# user should define which collumn contain habitat cathegories
+# data will be divided by this collumn
+
+# call
+cat("Which collumn contain habitat cathegories?:\n") # BIOTOPE_CODES
+# print options
+for (i in seq_along(cols)) {
+  cat(sprintf("[%d] %s\n", i, cols[i]))
+}
+
+# wait for valid option selection
+repeat {
+  input <- readline(prompt = "Type column number or name: ")
+  if (input %in% cols) {
+    bio_name <- input
+    break
+  }
+  num <- suppressWarnings(as.numeric(input))
+  if (!is.na(num) && num %in% seq_along(cols)) {
+    bio_name <- cols[num]
+    break
+  }
+  cat("Invalid input. Please try again.\n")
+}
+bio <- sym(bio_name) # convert to symbol
+# call out
+cat("As habitat cathegory you selected column:", bio_name, "\n\n")
+cat("------------------------------------------\n\n")
+
+#---#---#---#---#---#---#---#---#---#---#---#---#
+# N
+# represent number of cathegories which will be plotted
+# should be between 1 and n of cathegories
+### !! graphs with higher N are not readable anymore !!!!!!!!!
+
+# upper limit (maximum of plottable cathegories)
+n_vals <- nrow(unique(vector[[as.character(bio)]]))
+# call
+cat("How many cathegories you want to plot? max:", n_vals, "\n")
+# wait for valid input
+repeat {
+  input <- readline(prompt = paste0("Select a number between 1 and ", n_vals, ": "))
+  N <- suppressWarnings(as.integer(input)) # INTEGER
+  
+  if (!is.na(N) && N >= 1 && N <= n_vals) {
+    break
+  }
+  cat("Invalid input. Please try again.\n")
+}
+# call out
+cat("There will be", N, "cathegories plotted. \n\n")
+cat("------------------------------------------\n\n")
+
+#---#---#---#---#---#---#---#---#---#---#---#---#
+# thr
+# this is threshold, from which polygons are takjen as found in analysis
+# it represents minimal percentage cover of polygon by model (classification raster)
+
+cat("Minimum percent cover, to be taken as FOUND? \n")
+# wait for valid input
+repeat {
+  input <- readline(prompt = paste0("Select a number between 0.1 and 100: "))
+  thr <- suppressWarnings(as.double(input)) # handled as double
+  
+  if (!is.na(thr) && thr >= 0.1 && thr <= 100) { # valid?
+    break
+  }
+  cat("Invalid input. Please try again.\n")
+}
+# call out
+cat("All polygons with cover bigger than", thr, "percent will be taken as FOUND.\n\n")
+cat("------------------------------------------\n\n")
+
+#---#---#---#---#---#---#---#---#---#---#---#---# 
+# cleaning
+rm(bio_name, cols, i, id_name, input, n_vals, num)
 
 #---#---#---#---#---#---#---#---#---#---#---#---# 
 #                   Functions                   #
@@ -63,6 +160,8 @@ found <- v %>%
   group_by(mod, !!bio) %>%
   summarise(Found = n_distinct(!!id), .groups = "drop")
 
+#---#---#---#---#---#---#---#---#---#---#---#---#
+
 # join total and found, calculate proportions
 plot_df <- totals %>%
   left_join(found, by = c("mod", as.character(bio))) %>% # join
@@ -79,6 +178,9 @@ plot_df <- totals %>%
   group_by(mod, !!bio) %>%
   mutate(prop = n / sum(n)) %>% # compute proportion
   ungroup()
+
+#---#---#---#---#---#---#---#---#---#---#---#---#
+# select only top cathegories based on N defined by user
 
 # select cathegories with highest proportions
 top <- plot_df %>%
@@ -105,6 +207,9 @@ if(!dir.exists("out/RP")){
 # create output file
 pdf_name <- paste0("Relative_proportions_top_", N, "_thr_", thr, ".pdf")
 pdf(file = paste0("out/RP/", pdf_name), width = 10, height = 6)
+
+#---#---#---#---#---#---#---#---#---#---#---#---#
+# plot loop
 
 for (model in unique(plot_df_top$mod)) {
   plot_data <- plot_df_top %>%
@@ -154,6 +259,10 @@ for (model in unique(plot_df_top$mod)) {
 }
 
 dev.off()
+cat("Output is saved in folder out/RP/ \n")
+
+#---#---#---#---#---#---#---#---#---#---#---#---#
+# cleaning
 
 rm(pdf_name, plot_df, plot_df_top, top, totals, found, v, p, bio, id, model, N, thr, labels_df, plot_data, ordering)
 gc()
