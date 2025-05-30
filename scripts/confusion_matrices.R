@@ -25,7 +25,6 @@ check_layers <- function(stack){
   }
 }
 
-
 confmat <- function(stack, truth){
   # is that truly the truth HAHA
   if (!truth %in% names(stack)) {
