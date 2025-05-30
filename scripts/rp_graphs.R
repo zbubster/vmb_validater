@@ -155,5 +155,5 @@ for (model in unique(plot_df_top$mod)) {
 
 dev.off()
 
-rm(pdf_name, plot_df, plot_df_top, top, totals, found, v, p, bio, id, model, N, thr)
+rm(pdf_name, plot_df, plot_df_top, top, totals, found, v, p, bio, id, model, N, thr, labels_df, plot_data, ordering)
 gc()
