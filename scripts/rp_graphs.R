@@ -228,7 +228,7 @@ for (model in unique(plot_df_top$mod)) {
   # label preparation n = xxx
   labels_df <- plot_data %>%
     distinct(!!bio, total) %>%
-    mutate(label = paste0("n = ", total))
+    mutate(label = paste0("n=", total))
   
   # plot it!
   p <- ggplot(plot_data, aes(x = !!bio, y = prop, fill = found_status)) +
