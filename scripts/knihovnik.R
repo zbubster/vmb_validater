@@ -29,7 +29,7 @@ knihovnik <- function(kniha) {
   }
 }
 
-co <- c("terra", "dplyr", "ggplot2", "caret", "rlang")
+co <- c("terra", "dplyr", "ggplot2", "caret", "rlang", "tidyr")
 knihovnik(co)
 
 rm(co)
