@@ -90,7 +90,8 @@ top <- plot_df %>%
 
 # keep only top cathegories for plotting
 plot_df_top <- plot_df %>%
-  semi_join(top, by = c("mod", as.character(bio)))
+  semi_join(top, by = c("mod", as.character(bio))) %>%
+  left_join(totals, by = c("mod", as.character(bio)))
 
 #---#---#---#---#---#---#---#---#---#---#---#---# 
 #                     Plots                     #
@@ -106,11 +107,40 @@ pdf_name <- paste0("Relative_proportions_top_", N, "_thr_", thr, ".pdf")
 pdf(file = paste0("out/RP/", pdf_name), width = 10, height = 6)
 
 for (model in unique(plot_df_top$mod)) {
-  p <- plot_df_top %>%
-    filter(mod == model) %>%
-    ggplot(aes(x = reorder(!!bio, -prop), y = prop, fill = found_status)) +
+  plot_data <- plot_df_top %>%
+    filter(mod == model) # single mod output
+  
+  # arrange cathegories based on found proportion
+  ordering <- plot_data %>%
+    filter(found_status == "Found") %>%
+    arrange(desc(prop)) %>%
+    pull(!!bio) %>%
+    unique()
+  # apply ordering ↓
+  plot_data <- plot_data %>% 
+    mutate(!!bio := factor(!!bio, levels = ordering))
+  
+  # label preparation n = xxx
+  labels_df <- plot_data %>%
+    distinct(!!bio, total) %>%
+    mutate(label = paste0("n = ", total))
+  
+  # plot it!
+  p <- ggplot(plot_data, aes(x = !!bio, y = prop, fill = found_status)) +
     geom_bar(stat = "identity", position = "stack") +
-    scale_y_continuous(labels = scales::percent_format()) +
+    scale_fill_manual(
+      values = c(
+        "Found" = "steelblue",
+        "Not_found" = "orange"
+      )
+    ) +
+    geom_text(
+      data = labels_df,
+      aes(x = !!bio, y = 1.02, label = label),
+      inherit.aes = FALSE,
+      size = 3
+    ) +
+    scale_y_continuous(labels = scales::percent_format(), expand = expansion(mult = c(0, 0.15))) +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
     labs(
@@ -125,5 +155,5 @@ for (model in unique(plot_df_top$mod)) {
 
 dev.off()
 
-rm(pdf_name, plot_df, plot_df_top, top, totals, found, vv, v, p, bio, id, model, N, thr)
+rm(pdf_name, plot_df, plot_df_top, top, totals, found, v, p, bio, id, model, N, thr)
 gc()
