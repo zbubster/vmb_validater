@@ -33,7 +33,7 @@ vector <- vector[, c("SEGMENT_ID", "FSB", "BIOTOP_CODES", "HABIT_CODES", "SHAPE_
 
 what_to_filter <- NULL #what_to_filter <- "T"
 co <- NA
-while(call_out("FSB") == TRUE){
+while(call_out("any FSB group") == TRUE){
   cat("Ve vrstve zbyva:", unique(vector$FSB[!(vector$FSB %in% what_to_filter)]), "\n")
   co <- toupper(readline(prompt = "Jake skupiny FSB chcete odstranit? \n"))
   if(toupper(co) %in% toupper(vector$FSB)){
