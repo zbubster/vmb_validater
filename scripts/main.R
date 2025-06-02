@@ -21,6 +21,7 @@ source("scripts/analysis_raster.R", echo = F)
 source("scripts/area_of_cover.R", echo = F)
 
 source("scripts/rp_graphs.R", echo = F)
+source("scripts/cover_graphs.R", echo = F)
 
 vector
 vector[vector$SEGMENT_ID == 4020238]
