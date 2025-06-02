@@ -71,6 +71,13 @@ pdf(pdf_file, width = 10, height = 6)
 for (mod in unique(v$model)) {
   plot_data <- v %>% filter(model == mod)
   
+  # pokud je log-transformace, odstraň nuly a záporné hodnoty
+  if (type_suffix == "_area") {
+    zero_count <- sum(v$model == mod & v$value <= 0)
+    if (zero_count > 0) cat("Warning: Removed", zero_count, "non-positive values for log-scale\n")
+    plot_data <- plot_data %>% filter(value > 0)
+  }
+  
   # Seřazení kategorií podle mediánu
   ordering_df <- plot_data %>%
     group_by(!!bio) %>%
@@ -82,24 +89,63 @@ for (mod in unique(v$model)) {
   # Aplikace pořadí
   plot_data[[as.character(bio)]] <- factor(plot_data[[as.character(bio)]], levels = ordering)
   
-  # Zjisti pozici první kategorie s mediánem < 5
-  index_cut <- which(ordering_df$med < 5)[1]
+  # Zjisti pozici první kategorie s mediánem < 5 (pouze pro percent)
+  index_cut <- if (type_suffix == "_percent") which(ordering_df$med < 5)[1] else NA
   red_line <- if (!is.na(index_cut)) index_cut - 0.5 else NA
   
-  # Vytvoření boxplotu
+  # Spočítej n pro popisky
+  counts_df <- plot_data %>%
+    group_by(!!bio) %>%
+    summarise(n = n(), .groups = "drop") %>%
+    mutate(!!as.character(bio) := factor(!!bio, levels = ordering))
+  
+  # Výšky popisků počítané relativně
+  y_min <- min(plot_data$value, na.rm = TRUE)
+  y_max <- max(plot_data$value, na.rm = TRUE)
+  y_range <- y_max - y_min
+  y_label_n <- y_max + y_range * 0.05
+  y_label_cut <- y_min - y_range * 0.05
+  
+  # Základní graf
   p <- ggplot(plot_data, aes(x = !!bio, y = value)) +
     geom_boxplot(outlier.size = 0.8, fill = "skyblue") +
-    { if (!is.na(red_line)) geom_vline(xintercept = red_line, color = "red", linetype = "dashed") else NULL } +
+    
+    # Popisky počtu pozorování (vertikálně)
+    geom_text(
+      data = counts_df,
+      aes(x = !!bio, y = y_label_n, label = paste0("n = ", n)),
+      angle = 90, hjust = -0.1, vjust = 0.5, size = 3
+    ) +
+    
+    # Červená čára (jen pro percent)
+    { if (!is.na(red_line)) list(
+      geom_vline(xintercept = red_line, color = "red", linetype = "dashed"),
+      annotate("text", x = red_line + 0.5, y = y_label_cut,
+               label = "median < 5%", color = "red", size = 3, hjust = 0)
+    ) else NULL } +
+    
+    # Osová stupnice (závislá na typu dat)
+    { if (type_suffix == "_percent") {
+      scale_y_continuous(breaks = seq(0, 100, 10), expand = expansion(mult = c(0.02, 0.15)))
+    } else {
+      scale_y_log10(
+        expand = expansion(mult = c(0.02, 0.15)),
+        breaks = scales::log_breaks(base = 10)
+      )
+    }
+    } +
+    
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
     labs(
       title = paste("Coverage by model:", mod),
       x = as.character(bio),
-      y = ifelse(type_suffix == "_area", "Area (m²)", "Percent cover")
+      y = ifelse(type_suffix == "_area", "Area (log10 m²)", "Percent cover")
     )
   
   print(p)
 }
+
 
 dev.off()
 cat("PDF with boxplots saved in:", out_dir, "\n")
