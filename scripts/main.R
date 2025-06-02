@@ -9,7 +9,6 @@ raster_list
 #raster_list
 
 source("scripts/load_vector.R", echo = F)
-source("scripts/VMB_spec.R", echo = F)
 vector
 
 source("scripts/CRS.R", echo = F)
