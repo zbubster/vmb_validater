@@ -71,6 +71,18 @@ pdf(pdf_file, width = 10, height = 6)
 for (mod in unique(v$model)) {
   plot_data <- v %>% filter(model == mod)
   
+  # Určení pořadí bio skupin podle mediánu
+  ordering <- plot_data %>%
+    group_by(!!bio) %>%
+    summarise(med = median(value, na.rm = TRUE), .groups = "drop") %>%
+    arrange(desc(med)) %>%
+    pull(!!bio) %>%
+    as.character()
+  
+  # Aplikuj nové pořadí jako faktor
+  plot_data[[as.character(bio)]] <- factor(plot_data[[as.character(bio)]], levels = ordering)
+  
+  # Vytvoř boxplot
   p <- ggplot(plot_data, aes(x = !!bio, y = value)) +
     geom_boxplot(outlier.size = 0.8, fill = "skyblue") +
     theme_minimal() +
