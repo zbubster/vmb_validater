@@ -1,6 +1,6 @@
 # graphs of cover and relative proportions
 
-# INPUT: vector updated by vypocet_plochy.R (it should have cover area and percent of coverage of each polygon by each raster from raster list)
+# INPUT: vector updated by area_of_cover.R (it should have cover area and percent of coverage of each polygon by each raster from raster list)
 # OUTPUT: graphs in /out folder
 
 #---#---#---#---#---#---#---#---#---#---#---#---#
